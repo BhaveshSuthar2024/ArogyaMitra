@@ -1445,22 +1445,6 @@ export default function PatientDashboard() {
             </div>
           ))}
         </nav>
-
-        <div className="emergency-section">
-          <h3 className={`emergency-title ${language === "hi" ? "hindi-text" : ""}`}>🆘 {t("emergency.button")}</h3>
-          <p className={`emergency-subtitle ${language === "hi" ? "hindi-text" : ""}`}>{t("emergency.support")}</p>
-          <button className={`emergency-btn ${language === "hi" ? "hindi-text" : ""}`}>{t("btn.call.now")}</button>
-        </div>
-
-        <div className="language-switcher-sidebar">
-          <h4 className="language-switcher-title">{t("language.title")}</h4>
-          <div className="language-toggle" onClick={toggleLanguage}>
-            <span>🌐</span>
-            <span className={language === "hi" ? "hindi-text" : ""}>
-              {language === "en" ? t("language.english") : t("language.hindi")}
-            </span>
-          </div>
-        </div>
       </aside>
 
       {/* Main Content */}
