@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "../contexts/LanguageContext.jsx"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { authTranslations } from "./SpeechSync.js"
 import axios from "axios"
 import "./Auth.css"
@@ -19,12 +19,15 @@ export default function AuthForm() {
   const [availableVoices, setAvailableVoices] = useState([])
   const [hindiVoice, setHindiVoice] = useState(null)
   const [englishVoice, setEnglishVoice] = useState(null)
+  const [isComponentActive, setIsComponentActive] = useState(true)
   const { language, setLanguage, t } = useLanguage()
   const focusableRef = useRef([])
   const currentFocusIndex = useRef(0)
   const navigate = useNavigate()
+  const location = useLocation()
   const speechQueue = useRef([])
   const isSpeaking = useRef(false)
+  const componentMounted = useRef(true)
 
   // OTP input refs
   const otpRefs = useRef([])
@@ -45,81 +48,157 @@ export default function AuthForm() {
     otp: ["", "", "", "", "", ""],
   })
 
-  // Initialize Speech with Hindi and English support
+  useEffect(() => {
+  const loadMeSpeak = async () => {
+    try {
+      const script = document.createElement("script");
+      script.src = "/mespeak/mespeak.min.js"; // from public folder
+      script.onload = () => {
+        window.meSpeak.loadConfig("/mespeak/mespeak_config.json");
+        window.meSpeak.loadVoice("/mespeak/voices/en/en-us.json", () => {
+          console.log("meSpeak ready");
+          setIsSpeechReady(true);
+        });
+      };
+      document.body.appendChild(script);
+    } catch (err) {
+      console.error("Failed to load meSpeak:", err);
+    }
+  };
+
+  loadMeSpeak();
+}, []);
+
+
+  // useEffect(() => {
+  //   if (window.meSpeak) {
+  //     window.meSpeak.loadConfig("../../public/mespeak/mespeak__standard_config.json", () => {
+  //       console.log("meSpeak config loaded.");
+  //     });
+
+  //     window.meSpeak.loadVoice("../../public/mespeak/voices/en/en-us.json", () => {
+  //       console.log("meSpeak voice loaded.");
+  //     });
+  //   }
+  // }, []);
+
+
+  // Enhanced Speech with Raspberry Pi Chromium compatibility
   useEffect(() => {
     const initializeSpeech = async () => {
       try {
-        if ("speechSynthesis" in window) {
-          console.log("Initializing Web Speech API with Hindi support...")
+        // Detect Raspberry Pi environment
+        const isRaspberryPi =
+          /arm|aarch64/i.test(navigator.platform) || /raspberry/i.test(navigator.userAgent) || window.innerWidth <= 1024 // Common Pi screen resolution
 
-          // Wait for voices to load
+        console.log(`Initializing speech for ${isRaspberryPi ? "Raspberry Pi" : "Desktop"} environment...`)
+
+        if ("speechSynthesis" in window) {
+          // Wait longer for voices on Pi
+          const waitTime = isRaspberryPi ? 3000 : 1000
+
           const loadVoices = () => {
             const voices = window.speechSynthesis.getVoices()
-            setAvailableVoices(voices)
-
-            // Find Hindi voices
-            const hindiVoices = voices.filter(
-              (voice) =>
-                voice.lang.includes("hi") ||
-                voice.lang.includes("hi-IN") ||
-                voice.name.toLowerCase().includes("hindi") ||
-                voice.name.toLowerCase().includes("devanagari"),
+            console.log(
+              `Found ${voices.length} voices:`,
+              voices.map((v) => v.name),
             )
 
-            // Find English voices
-            const englishVoices = voices.filter(
-              (voice) =>
-                voice.lang.includes("en") ||
-                voice.lang.includes("en-US") ||
-                voice.lang.includes("en-IN") ||
-                voice.name.toLowerCase().includes("english"),
-            )
-
-            // Set preferred voices
-            if (hindiVoices.length > 0) {
-              // Prefer Indian English or Hindi voices
-              const preferredHindi =
-                hindiVoices.find((voice) => voice.lang === "hi-IN" || voice.name.toLowerCase().includes("indian")) ||
-                hindiVoices[0]
-              setHindiVoice(preferredHindi)
-              console.log("Hindi voice found:", preferredHindi.name)
+            if (voices.length === 0) {
+              console.warn("No voices available, using fallback")
+              setIsSpeechReady(false)
+              return
             }
 
-            if (englishVoices.length > 0) {
-              // Prefer Indian English voices for better accent
-              const preferredEnglish =
-                englishVoices.find((voice) => voice.lang === "en-IN" || voice.name.toLowerCase().includes("indian")) ||
-                englishVoices.find((voice) => voice.lang === "en-US") ||
-                englishVoices[0]
-              setEnglishVoice(preferredEnglish)
-              console.log("English voice found:", preferredEnglish.name)
+            setAvailableVoices(voices)
+
+            // Simplified voice selection for Pi
+            if (isRaspberryPi) {
+              // Use first available voice for Pi (more reliable)
+              const defaultVoice = voices[0]
+              setHindiVoice(defaultVoice)
+              setEnglishVoice(defaultVoice)
+              console.log("Pi: Using default voice:", defaultVoice.name)
+            } else {
+              // Original voice selection for desktop
+              const hindiVoices = voices.filter(
+                (voice) =>
+                  voice.lang.includes("hi") ||
+                  voice.lang.includes("hi-IN") ||
+                  voice.name.toLowerCase().includes("hindi"),
+              )
+
+              const englishVoices = voices.filter(
+                (voice) => voice.lang.includes("en") || voice.lang.includes("en-US") || voice.lang.includes("en-IN"),
+              )
+
+              if (hindiVoices.length > 0) {
+                const preferredHindi = hindiVoices.find((voice) => voice.lang === "hi-IN") || hindiVoices[0]
+                setHindiVoice(preferredHindi)
+              } else {
+                setHindiVoice(voices[0]) // Fallback to first voice
+              }
+
+              if (englishVoices.length > 0) {
+                const preferredEnglish =
+                  englishVoices.find((voice) => voice.lang === "en-IN") ||
+                  englishVoices.find((voice) => voice.lang === "en-US") ||
+                  englishVoices[0]
+                setEnglishVoice(preferredEnglish)
+              } else {
+                setEnglishVoice(voices[0]) // Fallback to first voice
+              }
             }
 
             setIsSpeechReady(true)
 
-            // Test speech with appropriate language
-            const welcomeMessage = language === "hi" ? "मेडिकल कियोस्क में आपका स्वागत है" : "Welcome to the medical kiosk"
-            speak(welcomeMessage)
+            // Test speech with simpler message for Pi
+            const welcomeMessage = isRaspberryPi
+              ? language === "hi"
+                ? "स्वागत है"
+                : "Welcome"
+              : language === "hi"
+                ? "मेडिकल कियोस्क में आपका स्वागत है"
+                : "Welcome to the medical kiosk"
+
+            // Delay initial speech for Pi
+            setTimeout(
+              () => {
+                speak(welcomeMessage)
+              },
+              isRaspberryPi ? 2000 : 500,
+            )
           }
 
-          // Load voices immediately if available
+          // Multiple attempts to load voices
+          let attempts = 0
+          const maxAttempts = isRaspberryPi ? 5 : 3
+
+          const tryLoadVoices = () => {
+            attempts++
+            const voices = window.speechSynthesis.getVoices()
+
+            if (voices.length > 0) {
+              loadVoices()
+            } else if (attempts < maxAttempts) {
+              console.log(`Attempt ${attempts}: No voices found, retrying...`)
+              setTimeout(tryLoadVoices, waitTime)
+            } else {
+              console.warn("Failed to load voices after multiple attempts")
+              setIsSpeechReady(false)
+            }
+          }
+
+          // Start loading voices
           if (window.speechSynthesis.getVoices().length > 0) {
             loadVoices()
           } else {
-            // Wait for voices to load
             window.speechSynthesis.onvoiceschanged = loadVoices
-
-            // Fallback timeout
-            setTimeout(() => {
-              if (window.speechSynthesis.getVoices().length > 0) {
-                loadVoices()
-              }
-            }, 1000)
+            setTimeout(tryLoadVoices, waitTime)
           }
         } else {
-          // Fallback to mespeak.js
-          console.log("Web Speech API not available, attempting to load mespeak.js...")
-          await loadMeSpeak()
+          console.warn("Speech synthesis not supported")
+          setIsSpeechReady(false)
         }
       } catch (error) {
         console.error("Error initializing speech:", error)
@@ -128,86 +207,32 @@ export default function AuthForm() {
     }
 
     initializeSpeech()
-  }, [])
+  }, []);
 
-  // Update voices when language changes
-  useEffect(() => {
-    if (isSpeechReady && availableVoices.length > 0) {
-      console.log(`Language changed to: ${language}`)
 
-      // Test speech in new language
-      const testMessage = language === "hi" ? "भाषा बदल गई है" : "Language has been changed"
 
-      setTimeout(() => {
-        speak(testMessage)
-      }, 500)
-    }
-  }, [language, isSpeechReady, availableVoices])
-
-  const loadMeSpeak = () => {
-    return new Promise((resolve, reject) => {
-      if (window.meSpeak) {
-        initializeMeSpeak().then(resolve).catch(reject)
-        return
-      }
-
-      const script = document.createElement("script")
-      script.src = "https://cdn.jsdelivr.net/npm/mespeak@1.9.2/src/mespeak.js"
-      script.onload = () => {
-        console.log("MeSpeak loaded from CDN")
-        initializeMeSpeak().then(resolve).catch(reject)
-      }
-      script.onerror = () => {
-        console.error("Failed to load mespeak from CDN")
-        reject(new Error("MeSpeak loading failed"))
-      }
-      document.head.appendChild(script)
-    })
-  }
-
-  const initializeMeSpeak = () => {
-    return new Promise((resolve, reject) => {
-      if (!window.meSpeak) {
-        reject(new Error("MeSpeak not available"))
-        return
-      }
-
-      try {
-        window.meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@1.9.2/src/mespeak_config.json")
-        window.meSpeak.loadVoice("https://cdn.jsdelivr.net/npm/mespeak@1.9.2/voices/en/en-us.json", (success) => {
-          if (success) {
-            console.log("MeSpeak voice loaded successfully")
-            setIsSpeechReady(true)
-            window.meSpeak.speak("Welcome to the medical kiosk!", {
-              amplitude: 100,
-              pitch: 50,
-              speed: 175,
-            })
-            resolve()
-          } else {
-            console.error("Failed to load MeSpeak voice")
-            reject(new Error("Voice loading failed"))
-          }
-        })
-      } catch (error) {
-        console.error("Error initializing MeSpeak:", error)
-        reject(error)
-      }
-    })
-  }
-
-  // Enhanced speak function with Hindi/English voice selection
+  // Enhanced speak function with Pi compatibility
   const speak = (text, options = {}) => {
-    if (!isSpeechReady || !text) {
-      console.warn("Speech not ready or no text provided")
+    if (!isSpeechReady || !text || !isComponentActive || !componentMounted.current) {
+      console.warn("Speech blocked: component inactive or not ready")
       return
     }
 
-    // Add to queue with language context
+    // Detect Pi environment
+    const isRaspberryPi =
+      /arm|aarch64/i.test(navigator.platform) || /raspberry/i.test(navigator.userAgent) || window.innerWidth <= 1024
+
+    // Simplify text for Pi (remove complex characters)
+    const cleanText = isRaspberryPi ? text.replace(/[^\w\s]/g, "") : text
+
+    // Add to queue with Pi-specific settings
     speechQueue.current.push({
-      text,
-      options,
-      language: language, // Current language context
+      text: cleanText,
+      options: {
+        ...options,
+        isRaspberryPi,
+      },
+      language: language,
     })
 
     if (!isSpeaking.current) {
@@ -216,6 +241,12 @@ export default function AuthForm() {
   }
 
   const processSpeechQueue = () => {
+    if (!isComponentActive || !componentMounted.current) {
+      speechQueue.current = []
+      isSpeaking.current = false
+      return
+    }
+
     if (speechQueue.current.length === 0) {
       isSpeaking.current = false
       return
@@ -225,88 +256,193 @@ export default function AuthForm() {
     const { text, options, language: textLanguage } = speechQueue.current.shift()
 
     try {
-      if ("speechSynthesis" in window) {
-        const utterance = new SpeechSynthesisUtterance(text)
-
-        // Select appropriate voice based on language
-        let selectedVoice = null
-        if (textLanguage === "hi" && hindiVoice) {
-          selectedVoice = hindiVoice
-          utterance.lang = "hi-IN"
-        } else if (textLanguage === "en" && englishVoice) {
-          selectedVoice = englishVoice
-          utterance.lang = "en-IN"
-        } else {
-          // Fallback to any available voice
-          const voices = window.speechSynthesis.getVoices()
-          selectedVoice = voices.find((voice) => voice.lang.includes(textLanguage)) || voices[0]
-        }
-
-        if (selectedVoice) {
-          utterance.voice = selectedVoice
-          console.log(`Speaking in ${textLanguage} using voice: ${selectedVoice.name}`)
-        }
-
-        // Configure speech parameters
-        utterance.rate = options.speed ? options.speed / 175 : textLanguage === "hi" ? 0.7 : 0.8
-        utterance.pitch = options.pitch ? options.pitch / 50 : textLanguage === "hi" ? 0.9 : 1.0
-        utterance.volume = options.amplitude ? options.amplitude / 100 : 1
-
-        utterance.onend = () => {
-          setTimeout(() => {
-            processSpeechQueue()
-          }, 500)
-        }
-
-        utterance.onerror = (event) => {
-          console.error("Speech synthesis error:", event.error)
-          setTimeout(() => {
-            processSpeechQueue()
-          }, 500)
-        }
-
-        // Cancel any ongoing speech before starting new one
+      if ("speechSynthesis" in window && window.speechSynthesis.getVoices().length > 0 && false) {
+        // Cancel any ongoing speech
         window.speechSynthesis.cancel()
-        window.speechSynthesis.speak(utterance)
-      } else if (window.meSpeak) {
-        // MeSpeak fallback (English only)
-        const defaultOptions = {
-          amplitude: 100,
-          pitch: 50,
-          speed: 250,
-          ...options,
-        }
 
-        window.meSpeak.speak(text, {
-          ...defaultOptions,
-          callback: () => {
-            setTimeout(() => {
-              processSpeechQueue()
-            }, 500)
+        // Wait a bit before starting new speech (important for Pi)
+        setTimeout(
+          () => {
+            if (!isComponentActive || !componentMounted.current) {
+              isSpeaking.current = false
+              return
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text)
+
+            // Pi-specific settings
+            if (options.isRaspberryPi) {
+              // Use first available voice for reliability
+              const voices = window.speechSynthesis.getVoices()
+              utterance.voice = voices[0]
+              utterance.rate = 0.6 // Slower for Pi
+              utterance.pitch = 1.0
+              utterance.volume = 0.8
+              utterance.lang = textLanguage === "hi" ? "hi-IN" : "en-US"
+            } else {
+              // Original voice selection for desktop
+              let selectedVoice = null
+              if (textLanguage === "hi" && hindiVoice) {
+                selectedVoice = hindiVoice
+                utterance.lang = "hi-IN"
+              } else if (textLanguage === "en" && englishVoice) {
+                selectedVoice = englishVoice
+                utterance.lang = "en-IN"
+              } else {
+                const voices = window.speechSynthesis.getVoices()
+                selectedVoice = voices[0]
+              }
+
+              if (selectedVoice) {
+                utterance.voice = selectedVoice
+              }
+
+              utterance.rate = textLanguage === "hi" ? 0.7 : 0.8
+              utterance.pitch = textLanguage === "hi" ? 0.9 : 1.0
+              utterance.volume = 1
+            }
+
+            // Enhanced error handling
+            utterance.onend = () => {
+              console.log("Speech completed successfully")
+              setTimeout(
+                () => {
+                  if (isComponentActive && componentMounted.current) {
+                    processSpeechQueue()
+                  } else {
+                    speechQueue.current = []
+                    isSpeaking.current = false
+                  }
+                },
+                options.isRaspberryPi ? 1000 : 500,
+              )
+            }
+
+            utterance.onerror = (event) => {
+              console.error("Speech synthesis error:", event.error)
+
+              // Handle specific Pi errors
+              if (event.error === "synthesis-failed" || event.error === "audio-busy") {
+                console.log("Pi speech error detected, retrying with simpler approach...")
+
+                // Retry with basic settings
+                setTimeout(() => {
+                  if (isComponentActive && componentMounted.current) {
+                    try {
+                      window.speechSynthesis.cancel()
+                      const simpleUtterance = new SpeechSynthesisUtterance(text)
+                      simpleUtterance.rate = 0.5
+                      simpleUtterance.pitch = 1.0
+                      simpleUtterance.volume = 0.7
+
+                      simpleUtterance.onend = () => {
+                        setTimeout(() => {
+                          if (isComponentActive && componentMounted.current) {
+                            processSpeechQueue()
+                          } else {
+                            speechQueue.current = []
+                            isSpeaking.current = false
+                          }
+                        }, 1000)
+                      }
+
+                      simpleUtterance.onerror = () => {
+                        console.log("Retry failed, skipping speech")
+                        setTimeout(() => {
+                          if (isComponentActive && componentMounted.current) {
+                            processSpeechQueue()
+                          } else {
+                            speechQueue.current = []
+                            isSpeaking.current = false
+                          }
+                        }, 500)
+                      }
+
+                      window.speechSynthesis.speak(simpleUtterance)
+                    } catch (retryError) {
+                      console.error("Retry speech failed:", retryError)
+                      setTimeout(() => {
+                        if (isComponentActive && componentMounted.current) {
+                          processSpeechQueue()
+                        } else {
+                          speechQueue.current = []
+                          isSpeaking.current = false
+                        }
+                      }, 500)
+                    }
+                  }
+                }, 1000)
+              } else {
+                // Skip this speech and continue with queue
+                setTimeout(() => {
+                  if (isComponentActive && componentMounted.current) {
+                    processSpeechQueue()
+                  } else {
+                    speechQueue.current = []
+                    isSpeaking.current = false
+                  }
+                }, 500)
+              }
+            }
+
+            // Speak with error handling
+            try {
+              window.speechSynthesis.speak(utterance)
+              console.log(`Speaking: "${text}" in ${textLanguage}`)
+            } catch (speakError) {
+              console.error("Error during speak:", speakError)
+              setTimeout(() => {
+                if (isComponentActive && componentMounted.current) {
+                  processSpeechQueue()
+                } else {
+                  speechQueue.current = []
+                  isSpeaking.current = false
+                }
+              }, 500)
+            }
           },
-        })
+          options.isRaspberryPi ? 500 : 100,
+        )
       } else {
+        console.warn("Speech synthesis not available, skipping")
         setTimeout(() => {
-          processSpeechQueue()
+          if (isComponentActive && componentMounted.current) {
+            processSpeechQueue()
+          } else {
+            speechQueue.current = []
+            isSpeaking.current = false
+          }
         }, 100)
       }
     } catch (error) {
-      console.error("Error during speech:", error)
+      console.error("Error during speech processing:", error)
       setTimeout(() => {
-        processSpeechQueue()
+        if (isComponentActive && componentMounted.current) {
+          processSpeechQueue()
+        } else {
+          speechQueue.current = []
+          isSpeaking.current = false
+        }
       }, 500)
     }
   }
 
   const stopSpeech = () => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel()
+    try {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel()
+        // Wait a bit for Pi to process the cancel
+        setTimeout(() => {
+          window.speechSynthesis.cancel()
+        }, 100)
+      }
+    } catch (error) {
+      console.error("Error stopping speech:", error)
     }
-    if (window.meSpeak && window.meSpeak.stop) {
-      window.meSpeak.stop()
-    }
+
     speechQueue.current = []
     isSpeaking.current = false
+    console.log("Speech stopped and queue cleared")
   }
 
   const generateDays = () => {
@@ -763,11 +899,15 @@ export default function AuthForm() {
           {/* Voice Status Indicator */}
           {isSpeechReady && (
             <div className="voice-status">
-              <span className="voice-indicator">🔊</span>
+              <span className="voice-indicator">{isComponentActive ? "🔊" : "🔇"}</span>
               <span className={`voice-text ${language === "hi" ? "hindi-text" : ""}`}>
-                {language === "hi"
-                  ? `आवाज़ सहायता: ${hindiVoice ? hindiVoice.name : "उपलब्ध"}`
-                  : `Voice Support: ${englishVoice ? englishVoice.name : "Available"}`}
+                {isComponentActive
+                  ? language === "hi"
+                    ? `आवाज़ सहायता: ${hindiVoice ? hindiVoice.name : "उपलब्ध"}`
+                    : `Voice Support: ${englishVoice ? englishVoice.name : "Available"}`
+                  : language === "hi"
+                    ? "आवाज़ सहायता बंद"
+                    : "Voice Support Disabled"}
               </span>
             </div>
           )}
@@ -1380,3 +1520,4 @@ export default function AuthForm() {
     </div>
   )
 }
+
