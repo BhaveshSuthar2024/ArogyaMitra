@@ -1054,6 +1054,7 @@ export default function AuthForm() {
                       key={index}
                       ref={(el) => (otpRefs.current[index] = el)}
                       type="text"
+                      autocomplete="off"
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value, false)}
                       onKeyDown={(e) => handleOtpKeyDown(e, index)}
@@ -1143,6 +1144,7 @@ export default function AuthForm() {
                 <input
                   type="text"
                   name="fullName"
+                  autocomplete="off"
                   className={`form-input ${errors.fullName ? "error" : ""}`}
                   placeholder={t("auth.name.placeholder")}
                   value={signUpData.fullName}
@@ -1178,6 +1180,7 @@ export default function AuthForm() {
                   <input
                     type="tel"
                     name="mobile"
+                    autocomplete="off"
                     className={`form-input ${errors.mobile ? "error" : ""}`}
                     placeholder={t("auth.mobile.placeholder")}
                     value={signUpData.mobile}
@@ -1367,6 +1370,7 @@ export default function AuthForm() {
                 <input
                   type="text"
                   name="aadhaarNumber"
+                  autocomplete="off"
                   className={`form-input ${errors.aadhaarNumber ? "error" : ""}`}
                   placeholder={t("auth.aadhaar.placeholder")}
                   value={signUpData.aadhaarNumber}
@@ -1434,6 +1438,7 @@ export default function AuthForm() {
                       key={index}
                       ref={(el) => (otpRefs.current[index] = el)}
                       type="text"
+                      autocomplete="off"
                       className="otp-input"
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value, true)}
@@ -1521,5 +1526,6 @@ export default function AuthForm() {
     </div>
   )
 }
+
 
 
