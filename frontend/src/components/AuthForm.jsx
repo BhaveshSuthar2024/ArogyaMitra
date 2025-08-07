@@ -984,6 +984,7 @@ export default function AuthForm() {
                 <input
                   type="tel"
                   name="mobile"
+                  autocomplete="off"
                   className={`form-input large ${errors.mobile ? "error" : ""}`}
                   placeholder={t("auth.mobile.placeholder")}
                   value={signInData.mobile}
@@ -1520,4 +1521,5 @@ export default function AuthForm() {
     </div>
   )
 }
+
 
