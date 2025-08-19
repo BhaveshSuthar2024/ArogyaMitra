@@ -11,7 +11,7 @@ import doctorRouter from './Routes/doctor.routes.js';
 export const app = express();
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "https://arogyamitra-frontend.onrender.com",
     credentials: true
 }));
 
@@ -26,6 +26,7 @@ app.use("/api/v1/doctors", doctorRoutes);
 app.use("/api/v1/video-calls", videoCallRoutes);
 app.use("/api/v1/patients", patientRouter);
 app.use("/api/v1/doctor", doctorRouter);
+
 
 
 app.use(GlobalErrorHandler);
