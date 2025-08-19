@@ -11,7 +11,7 @@ import doctorRouter from './Routes/doctor.routes.js';
 export const app = express();
 
 app.use(cors({
-    origin: "https://arogyamitra-frontend.onrender.com/",
+    origin: "https://arogyamitra-frontend.onrender.com",
     credentials: true
 }));
 
@@ -30,4 +30,5 @@ app.use("/api/v1/doctor", doctorRouter);
 
 
 app.use(GlobalErrorHandler);
+
 
