@@ -9,8 +9,8 @@ import verifyOTP from '../Utils/varifyOTP.js';
 const options = {
     maxAge: parseInt(process.env.EXPIRES_IN),
     httpOnly: true,
-    sameSite: "Lax",
-    secure: false
+    sameSite: "None",
+    secure: true
 };
 
 const GenerateAccessToken = async (id) => {
@@ -125,5 +125,6 @@ const loginVerifyOTP = asyncHandler(async (req, res, next) => {
     user
   });
 });
+
 
 export { requestOTP, registerUser, loginRequestOTP, loginVerifyOTP };
