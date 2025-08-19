@@ -11,8 +11,8 @@ import CallRequest from '../Models/CallRequest.model.js'
 const options = {
     maxAge: parseInt(process.env.EXPIRES_IN),
     httpOnly: true,
-    sameSite: "Lax",
-    secure: false
+    sameSite: "None",
+    secure: true
 };
 
 const GenerateAccessToken = async (id) => {
@@ -212,5 +212,6 @@ const getCallRequests = asyncHandler(async (req, res) => {
     data: requests,
   });
 });
+
 
 export { requestOTP, registerDoctor, loginDoctor, getCurrentDoctor, getCallRequests };
