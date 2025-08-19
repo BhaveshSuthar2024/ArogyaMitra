@@ -130,11 +130,11 @@ useEffect(() => {
 
   useEffect(() => {
     if (window.meSpeak) {
-      window.meSpeak.loadConfig("../..//mespeak/mespeak__standard_config.json", () => {
+      window.meSpeak.loadConfig("../../public/mespeak/mespeak__standard_config.json", () => {
         console.log("meSpeak config loaded.");
       });
 
-      window.meSpeak.loadVoice("../..//mespeak/voices/en/en-us.json", () => {
+      window.meSpeak.loadVoice("../../public/mespeak/voices/en/en-us.json", () => {
         console.log("meSpeak voice loaded.");
       });
     }
@@ -1520,4 +1520,5 @@ const processSpeechQueue = () => {
       </div>
     </div>
   )
+
 }
