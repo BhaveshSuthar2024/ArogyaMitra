@@ -2,8 +2,8 @@ import { useState } from "react"
 import { useLanguage } from "../contexts/LanguageContext.jsx"
 import "./HealthScanner.css"
 import Lottie from "lottie-react";
-import animationData from "../..//animation.json";
-import animationDataScan from "../..//Scan.json";
+import animationData from "../../public/animation.json";
+import animationDataScan from "../../public/Scan.json";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx"
 import axios from "axios";
@@ -374,4 +374,5 @@ export default function HealthScanner() {
     </div>
   )
 }
+
 
