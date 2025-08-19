@@ -274,7 +274,7 @@ export default function PatientDashboard() {
     address: "123 Main Street, Mumbai, Maharashtra",
     lastVisit: "2024-01-10",
     upcomingAppointment: "2024-01-20",
-    notifications: 3,
+    notification: 3,
     vitals: {
       heartRate: { value: 72, status: "normal", unit: "BPM" },
       bloodPressure: { value: "120/80", status: "normal", unit: "mmHg" },
@@ -1497,4 +1497,5 @@ export default function PatientDashboard() {
       )}
     </div>
   )
+
 }
