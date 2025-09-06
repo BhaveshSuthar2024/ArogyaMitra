@@ -537,6 +537,7 @@ const processSpeechQueue = () => {
       return null
     } finally {
       setLoading(false)
+      navigate("/patient");
     }
   }
 
@@ -1522,3 +1523,4 @@ const processSpeechQueue = () => {
   )
 
 }
+
