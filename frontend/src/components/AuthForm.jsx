@@ -1072,6 +1072,7 @@ const processSpeechQueue = () => {
                     />
                   ))}
                 </div>
+                <div>Sample Otp : 123456 </div>
                 {errors.otp && (
                   <div className="error-message">
                     <img src="/warning_13898912.png" alt="" className="emoji" /> {errors.otp}
@@ -1527,6 +1528,7 @@ const processSpeechQueue = () => {
   )
 
 }
+
 
 
 
