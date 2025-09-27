@@ -1028,7 +1028,7 @@ const processSpeechQueue = () => {
                 className="auth-button"
                 disabled={loading}
                 onFocus={(e) => handleElementFocus(e.target)}
-                {/* onClick={() => {sendOtp(signInData.mobile)}} */}
+                //onClick={() => {sendOtp(signInData.mobile)}}
                 onclick={() => {setCurrentStep(2)}}
                 tabIndex={0}
               >
@@ -1116,7 +1116,7 @@ const processSpeechQueue = () => {
                   disabled={loading}
                   onFocus={(e) => handleElementFocus(e.target)}
                   tabIndex={0}
-                  {/* onClick={() => {verifyOtp(signInData?.otp)}} */}
+                  //onClick={() => {verifyOtp(signInData?.otp)}}
                   onclick={() => {navigate('/patient')}}
                   id="verifyOtpBtn"
                  >
@@ -1527,5 +1527,6 @@ const processSpeechQueue = () => {
   )
 
 }
+
 
 
