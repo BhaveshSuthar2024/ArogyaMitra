@@ -263,7 +263,7 @@ export default function PatientDashboard() {
   // Mock patient data
   const patientData = {
     id: "P001",
-    name: "Rajesh Kumar",
+    name: "Bhavesh Suthar",
     avatar: "/man_11696179.png",
     age: 34,
     gender: "Male",
@@ -1497,4 +1497,5 @@ export default function PatientDashboard() {
       )}
     </div>
   )
+
 }
