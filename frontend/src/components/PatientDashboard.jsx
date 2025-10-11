@@ -7,7 +7,7 @@ import { useLanguage } from "../contexts/LanguageContext.jsx"
 import "./PatientDashboard.css"
 import HealthScanner from "./HealthScanner.jsx"
 import axios from "axios"
-import { ref, onValue } from 'firebase';
+import { ref, onValue } from 'firebase/database';
 import { db } from "../firebase.js"
 
 /**
@@ -71,6 +71,7 @@ export default function PatientDashboard() {
     const unsubscribe = onValue(dataRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
+        console.log(data);
 
         const formattedData = Object.keys(data).map((key) => ({
           id: key,
@@ -1527,4 +1528,5 @@ export default function PatientDashboard() {
   )
 
 }
+
 
