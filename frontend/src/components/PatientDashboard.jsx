@@ -7,6 +7,8 @@ import { useLanguage } from "../contexts/LanguageContext.jsx"
 import "./PatientDashboard.css"
 import HealthScanner from "./HealthScanner.jsx"
 import axios from "axios"
+import { ref, onValue } from 'firebase';
+import { db } from "../firebase.js"
 
 /**
  * PatientDashboard - Medical Kiosk with Comprehensive Keypad Navigation
@@ -59,6 +61,32 @@ export default function PatientDashboard() {
   const [showModal, setShowModal] = useState(false)
   const [modalContent, setModalContent] = useState(null)
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
+  const [sensorData, setsensorData] = useState([]);
+
+
+  useEffect(() => {
+    
+    const dataRef = ref(db, "data/");
+
+    const unsubscribe = onValue(dataRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+
+        const formattedData = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+
+        setsensorData(formattedData);
+      } else {
+        console.log("No data available");
+        setsensorData([]);
+      }
+    });
+
+    // Cleanup on unmount
+    return () => unsubscribe();
+  }, []);
 
   const navigate = useNavigate()
   const { logout } = useAuth()
@@ -1499,3 +1527,4 @@ export default function PatientDashboard() {
   )
 
 }
+
