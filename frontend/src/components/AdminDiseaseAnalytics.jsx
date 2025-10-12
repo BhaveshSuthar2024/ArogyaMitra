@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import RegionalDiseaseHeatmap from "./analytics/RegionalDiseaseHeatmap"
 import FilterBar from "./analytics/FilterBar"
 import DiseaseTrendChart from "./analytics/DiseaseTrendChart"
 import CommonDiseasesChart from "./analytics/CommonDiseasesChart"
@@ -133,11 +132,7 @@ export default function AdminDiseaseAnalytics() {
               <div className="chart-subtitle">Click states to filter • Hover for details</div>
             </div>
             <div className="chart-content">
-              <RegionalDiseaseHeatmap
-                data={mockRegionalData}
-                onRegionClick={handleRegionClick}
-                selectedRegion={selectedRegion}
-              />
+             
             </div>
           </div>
 
@@ -221,3 +216,4 @@ export default function AdminDiseaseAnalytics() {
     </div>
   )
 }
+
