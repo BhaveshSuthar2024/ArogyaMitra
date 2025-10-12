@@ -6,7 +6,7 @@
 // // Simplified India topology (you would use actual TopoJSON file)
 // const indiaTopology = "https://raw.githubusercontent.com/markmarkoh/datamaps/master/src/js/data/ind.json"
 
-export default function RegionalDiseaseHeatmap({ data, onRegionClick, selectedRegion }) {
+//export default function RegionalDiseaseHeatmap({ data, onRegionClick, selectedRegion }) {
   // const [tooltip, setTooltip] = useState({ show: false, content: null, x: 0, y: 0 })
 
   // // Calculate disease density for color coding
@@ -57,8 +57,8 @@ export default function RegionalDiseaseHeatmap({ data, onRegionClick, selectedRe
   //   }
   // }
 
-  return (
-    <>
+ // return (
+ //   <>
   // <div className="heatmap-container">
     
   //     <div className="map-wrapper">
@@ -161,8 +161,9 @@ export default function RegionalDiseaseHeatmap({ data, onRegionClick, selectedRe
   //       </div>
   //     </div>
    // </div>
-    </>
-  )
+//     </>
+//   )
 
-}
+// }
+
 
