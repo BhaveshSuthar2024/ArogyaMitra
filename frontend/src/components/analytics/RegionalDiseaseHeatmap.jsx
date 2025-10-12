@@ -58,7 +58,8 @@ export default function RegionalDiseaseHeatmap({ data, onRegionClick, selectedRe
   // }
 
   return (
-  <div className="heatmap-container">
+    <>
+  // <div className="heatmap-container">
     
   //     <div className="map-wrapper">
   //       <ComposableMap
@@ -159,7 +160,9 @@ export default function RegionalDiseaseHeatmap({ data, onRegionClick, selectedRe
   //         </div>
   //       </div>
   //     </div>
-    </div>
+   // </div>
+    </>
   )
 
 }
+
