@@ -8,39 +8,117 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx"
 import axios from "axios";
 import { useEffect } from "react";
+import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
+import { LineChart } from '@mui/x-charts/LineChart';
+import { ref, onValue } from 'firebase/database';
+import { db } from "../firebase.js"
 
 export default function HealthScanner() {
   const [scanningState, setScanningState] = useState("scanning") // idle, scanning, completed
   const [scanProgress, setScanProgress] = useState(0)
-  const [showResults, setShowResults] = useState(true)
-
-    const { logout } = useAuth()
+  const [showResults, setShowResults] = useState(true);
+  const [isScanning, setisScanning] = useState(true);
+  const [sensorData, setsensorData] = useState([]);
+  const [ecg, setecg] = useState({})
   
+    const { logout } = useAuth()
 
     const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(false);
     const { language, setLanguage, t } = useLanguage()
 
+     useEffect(() => {
+      const dataRef = ref(db, "ESP32_HealthData/");
+
+      const unsubscribe = onValue(dataRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          console.log(data);
+
+          console.log("Latest Sensor Data:", data.Average_BPM);
+          setsensorData(data.Average_BPM); // store only the latest reading object
+        } else {
+          console.log("No data available");
+          setsensorData({});
+        }
+      });
+
+      return () => unsubscribe();
+    }, []);
+    
+      useEffect(() => {
+        
+        const dataRef = ref(db, "/");
+    
+        const unsubscribe = onValue(dataRef, (snapshot) => {
+          
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            console.log(data);
+    
+            const formattedData = Object.keys(data).map((key) => ({
+              id: key,
+              ...data[key],
+            }));
+    
+            setecg(formattedData);
+          } else {
+            console.log("No data available");
+            setecg({});
+          }
+        });
+    
+        // Cleanup on unmount
+        return () => unsubscribe();
+      }, []);
+
 
     const BASE_URL = "https://arogyamitra-asdf.onrender.com/api/v1"; 
 
+    const xAxis = [
+    {
+      dataKey: "time",
+      scaleType: "linear",
+      label: "Time (s)",
+      valueFormatter: (val) => val.toFixed(2) // show 2 decimals
+    }
+  ];
+
+  const yAxis = [
+    {
+      dataKey: "voltage",
+      label: "Voltage (mV)",
+      valueFormatter: (val) => val.toFixed(2)
+    }
+  ];
+
+  const series = [
+    {
+      dataKey: "voltage",
+      showMark: false,
+      stroke: "#d32f2f"
+    }
+  ];
+
   // Mock test results data
   const testResults = [
-    {
-      id: 1,
-      name: "Heart Rate",
-      value: "72",
-      unit: "BPM",
-      status: "normal",
-      icon: "/heart_4252630.png",
-      range: "60-100 BPM",
-      description: "Your heart rate is within normal range",
-    },
+     {
+    id: 1,
+    name: "Heart Rate",
+    value: sensorData|| 0,
+    reading: sensorData|| 0,
+    unit: "BPM",
+    status: "normal",
+    icon: "/heart_4252630.png",
+    range: "60-100 BPM",
+    description: "Your heart rate is within normal range",
+  },
     {
       id: 2,
       name: "Blood Pressure",
-      value: "120/80",
+      value: 0,
+      reading: 0,
       unit: "mmHg",
       status: "normal",
       icon: "/blood_1240843.png",
@@ -50,7 +128,8 @@ export default function HealthScanner() {
     {
       id: 3,
       name: "Oxygen Saturation",
-      value: "98",
+      value: 0,
+      reading: 0,
       unit: "%",
       status: "normal",
       icon: "/lungs_1834842.png",
@@ -60,7 +139,8 @@ export default function HealthScanner() {
     {
       id: 4,
       name: "Body Temperature",
-      value: "98.6",
+      value: 0,
+      reading: 0,
       unit: "°F",
       status: "normal",
       icon: "/thermometer_1400304.png",
@@ -70,7 +150,8 @@ export default function HealthScanner() {
     {
       id: 5,
       name: "Stress Level",
-      value: "Low",
+      value: 0,
+      reading: 0,
       unit: "",
       status: "good",
       icon: "/meditation_4897166.png",
@@ -80,7 +161,8 @@ export default function HealthScanner() {
     {
       id: 6,
       name: "Hydration",
-      value: "Good",
+      value: 0,
+      reading: 0,
       unit: "",
       status: "normal",
       icon: "/drop_616546.png",
@@ -118,34 +200,32 @@ export default function HealthScanner() {
   ]
 
   const startScan = () => {
-  setScanningState("scanning")
-  setScanProgress(0)
-  setShowResults(false)
-  setScanMessageIndex(0)
+  setScanningState("scanning");
+  setScanProgress(0);
+  setShowResults(false);
+  setScanMessageIndex(0);
+  setisScanning(true);
 
-  
-
-  // Update scanning messages every 1.5s
   const messageInterval = setInterval(() => {
-    setScanMessageIndex((prev) => (prev + 1) % scanMessages.length)
-  }, 1500)
+    setScanMessageIndex((prev) => (prev + 1) % scanMessages.length);
+  }, 1500);
 
-  // Simulate scanning progress
   const progressInterval = setInterval(() => {
     setScanProgress((prev) => {
       if (prev >= 100) {
-        clearInterval(progressInterval)
-        clearInterval(messageInterval) // stop message updates
-        setScanningState("completed")
+        clearInterval(progressInterval);
+        clearInterval(messageInterval);
+        setScanningState("completed");
         setTimeout(() => {
-          setShowResults(true)
-        }, 1000)
-        return 100
+          setShowResults(true);
+          setisScanning(false); // ✅ switch to show results view
+        }, 1000);
+        return 100;
       }
-      return prev + 2
-    })
-  }, 100)
-}
+      return prev + 2;
+    });
+  }, 100);
+};
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "hi" : "en")
@@ -171,7 +251,7 @@ export default function HealthScanner() {
     }
   }
 
-  const handleConsultWithDoctor = async () => {
+  const handleConsultWithDoctor = async () => { 
   if (!dashboardData?._id) {
     alert("Patient data not found");
     return;
@@ -222,9 +302,14 @@ export default function HealthScanner() {
   }
 
   const handleSignOut = () => {
-    logout()
+    logout();
     navigate("/auth")
   }
+
+  const ecgArray = Object.entries(ecg || {}).map(([time, voltage]) => ({
+    time: parseFloat(time),
+    voltage,
+  }));
 
   return (
     <div className="health-scanner">
@@ -308,26 +393,42 @@ export default function HealthScanner() {
                     <p className="test-range">Normal: {test.range}</p>
                   </div>
                 </div>
-
-                <div className="test-value-section">
-                  <div className="test-value">
-                    <span className="value-number">{test.value}</span>
-                    {test.unit && <span className="value-unit">{test.unit}</span>}
+                
+                  {!isScanning ? <><div className="test-value-section">
+                    <div className="test-value">
+                      <span className="value-number">{test.reading}</span>
+                      {test.unit && <span className="value-unit">{test.unit}</span>}
+                    </div>
+                    <div
+                      className="test-status"
+                      style={{
+                        backgroundColor: getStatusColor(test.status),
+                        color: "white",
+                      }}
+                    >
+                      {getStatusText(test.status)}
+                    </div>
                   </div>
-                  <div
-                    className="test-status"
-                    style={{
-                      backgroundColor: getStatusColor(test.status),
-                      color: "white",
-                    }}
-                  >
-                    {getStatusText(test.status)}
-                  </div>
-                </div>
 
-                <div className="test-description">
-                  <p>{test.description}</p>
-                </div>
+                  <div className="test-description">
+                    <p>{test.description}</p>
+                  </div></> : <div className="gauge_section">
+                    <Gauge
+                      value={test?.value}
+                      startAngle={-110}
+                      endAngle={110}
+                      width={200}
+                      height={200}
+                      sx={{
+                        [`& .${gaugeClasses.valueText}`]: {
+                          fontSize: 24,
+                          fontWeight: "bold",
+                          fill: test.value > 80? "#ef4444" : test.value > 50 ? "#f59e0b" : "#10b981",
+                        },
+                      }}
+                    />
+                    </div>}
+                
 
                 <div className="test-trend">
                   <div className="trend-indicator">
@@ -337,6 +438,18 @@ export default function HealthScanner() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="summary-card">
+            <LineChart
+              dataset={ecgArray}
+              xAxis={xAxis}
+              yAxis={yAxis}
+              series={series}
+              height={300}
+              width={800}
+              grid={{ vertical: true, horizontal: true }}
+            />
           </div>
 
           <div className="results-summary">
@@ -367,6 +480,8 @@ export default function HealthScanner() {
               </div>
             </div>
           </div>
+
+          
         </div>
         </>
       )}
@@ -374,5 +489,3 @@ export default function HealthScanner() {
     </div>
   )
 }
-
-
