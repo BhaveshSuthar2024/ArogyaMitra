@@ -416,7 +416,7 @@ export default function HealthScanner() {
                     <Gauge
                       value={test?.value}
                       startAngle={-110}
-                      endAngle={110}
+                      endAngle={100}
                       width={200}
                       height={200}
                       sx={{
@@ -489,4 +489,5 @@ export default function HealthScanner() {
     </div>
   )
 }
+
 
