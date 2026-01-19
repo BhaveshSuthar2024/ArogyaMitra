@@ -1413,7 +1413,7 @@ const processSpeechQueue = () => {
                 disabled={loading}
                 onFocus={(e) => handleElementFocus(e.target)}
                 onclick={() => {setCurrentStep(2)}
-                //onclick = {() => {sendOtp(signInData.mobile, false) }}
+                
                 tabIndex={0}
               >
                 {loading && <span className="loading-spinner"></span>}
@@ -1489,7 +1489,6 @@ const processSpeechQueue = () => {
                   disabled={loading}
                   onFocus={(e) => handleElementFocus(e.target)}
                   onclick={() => {navigate('/patient')}}
-                  //onclick = {() => {verifOtp(signInData.mobile)}}
                   tabIndex={0}
                 >
                   {loading && <span className="loading-spinner"></span>}
@@ -1529,6 +1528,7 @@ const processSpeechQueue = () => {
   )
 
 }
+
 
 
 
