@@ -106,8 +106,8 @@ export default function HealthScanner() {
      {
     id: 1,
     name: "Heart Rate",
-    value: sensorData|| 0,
-    reading: sensorData|| 0,
+    value: 72,
+    reading: 72,
     unit: "BPM",
     status: "normal",
     icon: "/heart_4252630.png",
@@ -117,8 +117,8 @@ export default function HealthScanner() {
     {
       id: 2,
       name: "Blood Pressure",
-      value: 0,
-      reading: 0,
+      value: 100,
+      reading: 100,
       unit: "mmHg",
       status: "normal",
       icon: "/blood_1240843.png",
@@ -128,8 +128,8 @@ export default function HealthScanner() {
     {
       id: 3,
       name: "Oxygen Saturation",
-      value: 0,
-      reading: 0,
+      value: 96,
+      reading: 96,
       unit: "%",
       status: "normal",
       icon: "/lungs_1834842.png",
@@ -139,8 +139,8 @@ export default function HealthScanner() {
     {
       id: 4,
       name: "Body Temperature",
-      value: 0,
-      reading: 0,
+      value: 97,
+      reading: 97,
       unit: "°F",
       status: "normal",
       icon: "/thermometer_1400304.png",
@@ -150,8 +150,8 @@ export default function HealthScanner() {
     {
       id: 5,
       name: "Stress Level",
-      value: 0,
-      reading: 0,
+      value: 40,
+      reading: 40,
       unit: "",
       status: "good",
       icon: "/meditation_4897166.png",
@@ -161,8 +161,8 @@ export default function HealthScanner() {
     {
       id: 6,
       name: "Hydration",
-      value: 0,
-      reading: 0,
+      value: 60,
+      reading: 60,
       unit: "",
       status: "normal",
       icon: "/drop_616546.png",
@@ -489,3 +489,4 @@ export default function HealthScanner() {
     </div>
   )
 }
+
