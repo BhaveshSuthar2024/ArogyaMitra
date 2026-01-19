@@ -1412,8 +1412,7 @@ const processSpeechQueue = () => {
                 className="auth-button"
                 disabled={loading}
                 onFocus={(e) => handleElementFocus(e.target)}
-                onclick={() => {setCurrentStep(2)}
-                
+                onclick={() => {setCurrentStep(2)}}
                 tabIndex={0}
               >
                 {loading && <span className="loading-spinner"></span>}
@@ -1528,6 +1527,7 @@ const processSpeechQueue = () => {
   )
 
 }
+
 
 
 
