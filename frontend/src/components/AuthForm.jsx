@@ -1412,7 +1412,8 @@ const processSpeechQueue = () => {
                 className="auth-button"
                 disabled={loading}
                 onFocus={(e) => handleElementFocus(e.target)}
-                onclick={() => {setCurrentStep(2); {/*sendOtp(signInData.mobile, false)*/}}
+                onclick={() => {setCurrentStep(2)}
+                //onclick = {() => {sendOtp(signInData.mobile, false) }}
                 tabIndex={0}
               >
                 {loading && <span className="loading-spinner"></span>}
@@ -1487,7 +1488,8 @@ const processSpeechQueue = () => {
                   className="auth-button"
                   disabled={loading}
                   onFocus={(e) => handleElementFocus(e.target)}
-                  onclick={() => {{/*verifOtp(signInData.mobile);*/} navigate('/patient')}}
+                  onclick={() => {navigate('/patient')}}
+                  //onclick = {() => {verifOtp(signInData.mobile)}}
                   tabIndex={0}
                 >
                   {loading && <span className="loading-spinner"></span>}
@@ -1527,6 +1529,7 @@ const processSpeechQueue = () => {
   )
 
 }
+
 
 
 
