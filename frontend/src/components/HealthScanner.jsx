@@ -117,8 +117,8 @@ export default function HealthScanner() {
     {
       id: 2,
       name: "Blood Pressure",
-      value: 100,
-      reading: 100,
+      value: 94,
+      reading: 94,
       unit: "mmHg",
       status: "normal",
       icon: "/blood_1240843.png",
@@ -416,7 +416,7 @@ export default function HealthScanner() {
                     <Gauge
                       value={test?.value}
                       startAngle={-110}
-                      endAngle={100}
+                      endAngle={110}
                       width={200}
                       height={200}
                       sx={{
@@ -489,5 +489,6 @@ export default function HealthScanner() {
     </div>
   )
 }
+
 
 
