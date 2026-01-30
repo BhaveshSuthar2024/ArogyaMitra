@@ -364,7 +364,7 @@ export default function HealthScanner() {
     }
 
   } catch (err) {
-    console.error("Error starting video consultation:", err);
+    console.log("Error starting video consultation:", err);
     alert("Failed to initiate video consultation");
   } finally {
     setLoading(false);
@@ -701,3 +701,4 @@ export default function HealthScanner() {
     </div>
   )
 }
+
