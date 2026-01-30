@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { LanguageProvider } from "./contexts/LanguageContext"
 import { AuthProvider, useAuth } from "./contexts/AuthContext"
+import { SensorProvider } from "./contexts/sensorContext.jsx";
 import WelcomePage from "./components/WelcomePage"
 import MedicalKioskHome from "./components/MedicalKioskHome"
 import AdminDashboard from "./components/AdminDashboard"
 import AuthForm from "./components/AuthForm"
 import PatientDashboard from "./components/PatientDashboard"
 import DoctorDashboard from "./components/DoctorDashboard"
+import VoiceForm from "./components/VoiceForm.jsx";
 import "./App.css";
 import WaitingRoom from "./components/WaitingRoom.jsx";
 import DoctorAuth from './components/DoctorAuth.jsx'
@@ -79,7 +81,7 @@ function AppRoutes() {
         path="/patient"
         element={
           
-            <PatientDashboard patient={user} />
+            <PatientDashboard />
           
         }
       />
@@ -89,6 +91,15 @@ function AppRoutes() {
         element={
           
             <DoctorDashboard />
+          
+        }
+      />
+
+      <Route
+        path="/form"
+        element={
+          
+            <VoiceForm />
           
         }
       />
@@ -115,6 +126,7 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
+        <SensorProvider>
         <Router>
           <div className="App">
             {isIdle ? (
@@ -124,6 +136,7 @@ function App() {
             )}
           </div>
         </Router>
+        </SensorProvider>
       </AuthProvider>
     </LanguageProvider>
   )
