@@ -232,7 +232,6 @@ export default function AuthForm() {
         : "https://arogyamitra-asdf.onrender.com/api/v1/auth/login/verify"
       const res = await axios.post(endpoint, { mobileNo, otp }, { withCredentials: true })
       setSuccess(t("auth.otp.verified"))
-      navigate("/patient")
       return res.data
     } catch (error) {
       setErrors({ otp: error?.response?.data?.error || "OTP verification failed" })
@@ -1324,3 +1323,4 @@ export default function AuthForm() {
   )
 
 }
+
