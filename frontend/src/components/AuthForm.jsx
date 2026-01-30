@@ -809,7 +809,7 @@ export default function AuthForm() {
                 disabled={loading}
                 onFocus={(e) => handleElementFocus(e.target)}
                 onClick={() => {
-                  // keep previous behavior: advance to OTP screen; the network call sendOtp is available as function
+                  sendOtp(signInData?.mobile);// keep previous behavior: advance to OTP screen; the network call sendOtp is available as function
                   setCurrentStep(2)
                 }}
                 tabIndex={0}
@@ -904,7 +904,7 @@ export default function AuthForm() {
                   onFocus={(e) => handleElementFocus(e.target)}
                   tabIndex={0}
                   onClick={() => {
-                    // preserve behavior: navigation to form is present in original code
+                    verifyOtp(signInData.otp);// preserve behavior: navigation to form is present in original code
                     navigate("/form")
                   }}
                   id="verifyOtpBtn"
@@ -1322,4 +1322,5 @@ export default function AuthForm() {
       </div>
     </div>
   )
+
 }
