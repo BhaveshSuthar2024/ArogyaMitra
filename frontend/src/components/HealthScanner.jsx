@@ -22,7 +22,7 @@ export default function HealthScanner() {
   const [loading, setloading] = useState(false);
   // const [ecgArray, setEcgArray] = useState([]);
   // const timeRef = useRef(0);
-  // const [formData, setformData] = useState({})
+  const [formData, setformData] = useState({})
 
   const { sensors, loading: sensorsLoading } = useSensors();
 
@@ -701,4 +701,5 @@ export default function HealthScanner() {
     </div>
   )
 }
+
 
