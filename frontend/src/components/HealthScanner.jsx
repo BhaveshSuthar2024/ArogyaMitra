@@ -364,7 +364,7 @@ export default function HealthScanner() {
     }
 
   } catch (err) {
-    console.log("SERVER RESPONSE:", err.response?.data);
+    console.log("SERVER RESPONSE:", err.response);
     console.log("Error starting video consultation:", err);
     alert("Failed to initiate video consultation");
   } finally {
@@ -702,6 +702,7 @@ export default function HealthScanner() {
     </div>
   )
 }
+
 
 
 
