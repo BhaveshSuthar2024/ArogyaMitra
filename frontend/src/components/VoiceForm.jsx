@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 const fields = [
   { key: "name", label: "पूरा नाम", question: "कृपया अपना पूरा नाम बताइए" },
   { key: "age", label: "उम्र", question: "कृपया अपनी उम्र बताइए" },
-  { key: "gender", label: "लिंग", question: "कृपया अपना लिंग बताइए" },
-  { key: "height", label: "लंबाई (सेमी)", question: "कृपया अपनी लंबाई सेंटीमीटर में बताइए" },
+  { key: "gender", label: "लिंग", question: "कृपया अपना जेंडर बताएं।" },
+  { key: "height", label: "लंबाई (सेमी)", question: "कृपया अपनी लंबाई फुट और इंच में बताएं।" },
   { key: "weight", label: "वजन (किलो)", question: "कृपया अपना वजन किलो में बताइए" },
   { key: "address", label: "पता", question: "कृपया अपना पूरा पता बताइए" },
   { key: "genetic", label: "जेनेटिक समस्या", question: "क्या आपको कोई जेनेटिक समस्या है" },
@@ -461,4 +461,5 @@ export default function VoiceForm() {
       </div>
     </div>
   );
+
 }
