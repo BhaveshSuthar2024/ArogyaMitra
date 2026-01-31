@@ -345,8 +345,6 @@ export default function HealthScanner() {
   }
 
   try {
-    setLoading(true);
-
     const res = await axios.post(`${BASE_URL}/video-calls/request`, {
       patientId: dashboardData._id,
       symptoms: ["fever", "headache"],
@@ -367,8 +365,6 @@ export default function HealthScanner() {
     console.log("SERVER RESPONSE:", err.response);
     console.log("Error starting video consultation:", err);
     alert("Failed to initiate video consultation");
-  } finally {
-    setLoading(false);
   }
 };
 
@@ -702,6 +698,7 @@ export default function HealthScanner() {
     </div>
   )
 }
+
 
 
 
